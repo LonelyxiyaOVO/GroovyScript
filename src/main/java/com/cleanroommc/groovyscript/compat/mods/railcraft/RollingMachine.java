@@ -40,11 +40,8 @@ public class RollingMachine extends VirtualizedRegistry<IRollingMachineCrafter.I
 
     @Override
     public void onReload() {
-        removeScripted().forEach(r -> {
-            List<IRollingMachineCrafter.IRollingRecipe> recipes = new ArrayList<>(Crafters.rollingMachine().getRecipes());
-            recipes.removeIf(recipe -> recipe.getRegistryName().equals(r.getRegistryName()));
-        });
-        restoreFromBackup().forEach(r -> ModSupport.RAILCRAFT.get().rollingMachine.add(r.getRegistryName(), r));
+        removeScripted().forEach(r -> Crafters.rollingMachine().getRecipes().removeIf(recipe -> recipe.getRegistryName().equals(r.getRegistryName())));
+        restoreFromBackup().forEach(r -> Crafters.rollingMachine().getRecipes().add(r));
     }
 
     @MethodDescription(type = MethodDescription.Type.ADDITION)
