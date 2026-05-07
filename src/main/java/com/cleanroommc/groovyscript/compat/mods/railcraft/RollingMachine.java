@@ -15,13 +15,12 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RegistryDescription
-public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, IRollingMachineCrafter.IRollingRecipe>> {
+public class RollingMachine extends VirtualizedRegistry<IRollingMachineCrafter.IRollingRecipe> {
 
     @RecipeBuilderDescription(example = {
             @Example(".output(item('minecraft:stone')).matrix('BXX', 'X B').key('B', item('minecraft:stone')).key('X', item('minecraft:gold_ingot')).time(200)"),
@@ -43,9 +42,9 @@ public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, I
     public void onReload() {
         removeScripted().forEach(r -> {
             List<IRollingMachineCrafter.IRollingRecipe> recipes = new ArrayList<>(Crafters.rollingMachine().getRecipes());
-            recipes.removeIf(recipe -> recipe.getRegistryName().equals(r.getKey()));
+            recipes.removeIf(recipe -> recipe.getRegistryName().equals(r.getRegistryName()));
         });
-        restoreFromBackup().forEach(r -> ModSupport.RAILCRAFT.get().rollingMachine.add(r.getKey(), r.getValue()));
+        restoreFromBackup().forEach(r -> ModSupport.RAILCRAFT.get().rollingMachine.add(r.getRegistryName(), r));
     }
 
     @MethodDescription(type = MethodDescription.Type.ADDITION)
@@ -78,7 +77,7 @@ public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, I
 
     public IRollingMachineCrafter.IRollingRecipe add(ResourceLocation key, IRollingMachineCrafter.IRollingRecipe recipe) {
         if (recipe != null) {
-            addScripted(Pair.of(key, recipe));
+            addScripted(recipe);
         }
         return recipe;
     }
@@ -87,7 +86,7 @@ public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, I
     public boolean removeByOutput(IIngredient output) {
         return Crafters.rollingMachine().getRecipes().removeIf(r -> {
             if (output.test(r.getRecipeOutput())) {
-                addBackup(Pair.of(r.getRegistryName(), r));
+                addBackup(r);
                 return true;
             }
             return false;
@@ -97,7 +96,7 @@ public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, I
     public boolean remove(ResourceLocation key) {
         return Crafters.rollingMachine().getRecipes().removeIf(r -> {
             if (r.getRegistryName().equals(key)) {
-                addBackup(Pair.of(key, r));
+                addBackup(r);
                 return true;
             }
             return false;
@@ -105,7 +104,7 @@ public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, I
     }
 
     public boolean remove(IRollingMachineCrafter.IRollingRecipe recipe) {
-        addBackup(Pair.of(recipe.getRegistryName(), recipe));
+        addBackup(recipe);
         return Crafters.rollingMachine().getRecipes().remove(recipe);
     }
 
@@ -116,7 +115,7 @@ public class RollingMachine extends VirtualizedRegistry<Pair<ResourceLocation, I
 
     @MethodDescription(priority = 2000, example = @Example(commented = true))
     public void removeAll() {
-        Crafters.rollingMachine().getRecipes().forEach(r -> addBackup(Pair.of(r.getRegistryName(), r)));
+        Crafters.rollingMachine().getRecipes().forEach(r -> addBackup(r));
         Crafters.rollingMachine().getRecipes().clear();
     }
 
