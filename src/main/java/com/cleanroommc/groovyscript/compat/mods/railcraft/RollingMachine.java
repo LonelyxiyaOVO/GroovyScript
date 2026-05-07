@@ -81,23 +81,11 @@ public class RollingMachine extends VirtualizedRegistry<IRollingMachineCrafter.I
 
     @MethodDescription(example = @Example("item('minecraft:tripwire_hook')"))
     public boolean removeByOutput(IIngredient output) {
-        return Crafters.rollingMachine().getRecipes().removeIf(r -> {
-            if (output.test(r.getRecipeOutput())) {
-                addBackup(r);
-                return true;
-            }
-            return false;
-        });
+        return Crafters.rollingMachine().getRecipes().removeIf(r -> output.test(r.getRecipeOutput()) && doAddBackup(r));
     }
 
     public boolean remove(ResourceLocation key) {
-        return Crafters.rollingMachine().getRecipes().removeIf(r -> {
-            if (r.getRegistryName().equals(key)) {
-                addBackup(r);
-                return true;
-            }
-            return false;
-        });
+        return Crafters.rollingMachine().getRecipes().removeIf(r -> r.getRegistryName().equals(key) && doAddBackup(r));
     }
 
     public boolean remove(IRollingMachineCrafter.IRollingRecipe recipe) {
